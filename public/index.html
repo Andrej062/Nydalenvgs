@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Nydalen VGS Brukersystem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Nydalen VGS Brukersystem</h1>
+
+  <section>
+    <h2>Legg til bruker</h2>
+
+    <form id="userForm">
+      <input type="text" id="fullName" placeholder="Fullt navn" required>
+      <input type="email" id="email" placeholder="E-post" required>
+
+      <select id="role" required>
+        <option value="">Velg rolle</option>
+        <option value="elev">Elev</option>
+        <option value="lærer">Lærer</option>
+        <option value="admin">Admin</option>
+        <option value="miljøfagarbeider">Miljøfagarbeider</option>
+        <option value="it-driftekniker">IT-driftekniker</option>
+      </select>
+
+      <input type="text" id="className" placeholder="Klasse, f.eks. VG1">
+
+        <button type="submit" id="submitButton">Legg til</button>
+        <button type="button" id="cancelEditButton" style="display: none;">Avbryt endring</button>    
+    </form>
+  </section>
+
+    <section>
+        <h2>Brukere</h2>
+
+        <label for="roleFilter">Vis brukere:</label>
+        <select id="roleFilter">
+            <option value="alle">Alle</option>
+            <option value="elev">Bare elever</option>
+            <option value="lærer">Bare lærere</option>
+            <option value="admin">Bare admin</option>
+            <option value="miljøfagarbeider">Bare miljøfagarbeider</option>
+            <option value="it-driftekniker">Bare IT-driftekniker</option>
+    </select>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Navn</th>
+          <th>E-post</th>
+          <th>Rolle</th>
+          <th>Klasse</th>
+          <th>Handling</th>
+        </tr>
+      </thead>
+      <tbody id="usersTable"></tbody>
+    </table>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
