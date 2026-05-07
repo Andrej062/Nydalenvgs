@@ -4,29 +4,61 @@ const Database = require("better-sqlite3");
 const app = express();
 const port = 3000;
 
-// Gjør at serveren kan lese JSON fra frontend
 app.use(express.json());
 app.use(express.static("public"));
 
-// Kobler til databasen
 const db = new Database("nydalenvgs.db");
 
-// Henter alle brukere
+// Henter alle brukere med rolle og klasse
 app.get("/api/users", (req, res) => {
-  const users = db.prepare("SELECT * FROM users").all();
+  const users = db.prepare(`
+    SELECT 
+      users.id,
+      users.first_name,
+      users.last_name,
+      users.email,
+      users.role_id,
+      users.class_id,
+      roles.role_name AS role,
+      classes.class_name AS class_name,
+      users.created_at
+    FROM users
+    LEFT JOIN roles ON users.role_id = roles.id
+    LEFT JOIN classes ON users.class_id = classes.id
+    ORDER BY users.id
+  `).all();
+
   res.json(users);
+});
+
+// Henter alle roller
+app.get("/api/roles", (req, res) => {
+  const roles = db.prepare("SELECT * FROM roles ORDER BY id").all();
+  res.json(roles);
+});
+
+// Henter alle klasser
+app.get("/api/classes", (req, res) => {
+  const classes = db.prepare("SELECT * FROM classes ORDER BY id").all();
+  res.json(classes);
 });
 
 // Legger til ny bruker
 app.post("/api/users", (req, res) => {
-  const { full_name, email, role, class_name } = req.body;
+  const { first_name, last_name, email, role_id, class_id } = req.body;
 
   const insert = db.prepare(`
-    INSERT INTO users (full_name, email, role, class_name)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO users (first_name, last_name, email, role_id, class_id)
+    VALUES (?, ?, ?, ?, ?)
   `);
 
-  const result = insert.run(full_name, email, role, class_name);
+  const result = insert.run(
+    first_name,
+    last_name,
+    email,
+    role_id,
+    class_id || null
+  );
 
   res.json({
     message: "Bruker lagt til",
@@ -37,15 +69,22 @@ app.post("/api/users", (req, res) => {
 // Endrer en bruker
 app.put("/api/users/:id", (req, res) => {
   const { id } = req.params;
-  const { full_name, email, role, class_name } = req.body;
+  const { first_name, last_name, email, role_id, class_id } = req.body;
 
   const update = db.prepare(`
     UPDATE users
-    SET full_name = ?, email = ?, role = ?, class_name = ?
+    SET first_name = ?, last_name = ?, email = ?, role_id = ?, class_id = ?
     WHERE id = ?
   `);
 
-  update.run(full_name, email, role, class_name, id);
+  update.run(
+    first_name,
+    last_name,
+    email,
+    role_id,
+    class_id || null,
+    id
+  );
 
   res.json({
     message: "Bruker oppdatert"
@@ -64,7 +103,6 @@ app.delete("/api/users/:id", (req, res) => {
   });
 });
 
-// Starter serveren
 app.listen(port, () => {
   console.log(`Server kjører på http://localhost:${port}`);
 });

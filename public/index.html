@@ -6,58 +6,71 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Nydalen VGS Brukersystem</h1>
+  <main class="container">
+    <header class="top">
+      <div>
+        <h1>Nydalen VGS Brukersystem</h1>
+        <p>En enkel løsning for å administrere brukere på skolen.</p>
+      </div>
+    </header>
 
-  <section>
-    <h2>Legg til bruker</h2>
+    <section class="card">
+      <h2>Legg til / endre bruker</h2>
 
-    <form id="userForm">
-      <input type="text" id="fullName" placeholder="Fullt navn" required>
-      <input type="email" id="email" placeholder="E-post" required>
+      <form id="userForm" class="form-grid">
+        <input type="text" id="firstName" placeholder="Fornavn" required>
+        <input type="text" id="lastName" placeholder="Etternavn" required>
+        <input type="email" id="email" placeholder="E-post" required>
 
-      <select id="role" required>
-        <option value="">Velg rolle</option>
-        <option value="elev">Elev</option>
-        <option value="lærer">Lærer</option>
-        <option value="admin">Admin</option>
-        <option value="miljøfagarbeider">Miljøfagarbeider</option>
-        <option value="it-driftekniker">IT-driftekniker</option>
-      </select>
+        <select id="role" required>
+          <option value="">Velg rolle</option>
+        </select>
 
-      <input type="text" id="className" placeholder="Klasse, f.eks. VG1">
+        <select id="className">
+          <option value="">Ingen klasse</option>
+        </select>
 
-        <button type="submit" id="submitButton">Legg til</button>
-        <button type="button" id="cancelEditButton" style="display: none;">Avbryt endring</button>    
-    </form>
-  </section>
+        <div class="buttons">
+          <button type="submit" id="submitButton">Legg til</button>
+          <button type="button" id="cancelEditButton" class="secondary" style="display: none;">Avbryt endring</button>
+        </div>
+      </form>
+    </section>
 
-    <section>
+    <section class="card">
+      <div class="table-header">
         <h2>Brukere</h2>
 
-        <label for="roleFilter">Vis brukere:</label>
-        <select id="roleFilter">
+        <div>
+          <label for="roleFilter">Vis:</label>
+          <select id="roleFilter">
             <option value="alle">Alle</option>
             <option value="elev">Bare elever</option>
             <option value="lærer">Bare lærere</option>
             <option value="admin">Bare admin</option>
-            <option value="miljøfagarbeider">Bare miljøfagarbeider</option>
-            <option value="it-driftekniker">Bare IT-driftekniker</option>
-    </select>
+            <option value="miljøfagarbeider">Bare miljøfagarbeidere</option>
+            <option value="it-driftekniker">Bare IT-drifteknikere</option>
+            <option value="annet">Annet</option>
+          </select>
+        </div>
+      </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Navn</th>
-          <th>E-post</th>
-          <th>Rolle</th>
-          <th>Klasse</th>
-          <th>Handling</th>
-        </tr>
-      </thead>
-      <tbody id="usersTable"></tbody>
-    </table>
-  </section>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fornavn</th>
+            <th>Etternavn</th>
+            <th>E-post</th>
+            <th>Rolle</th>
+            <th>Klasse</th>
+            <th>Handling</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable"></tbody>
+      </table>
+    </section>
+  </main>
 
   <script src="script.js"></script>
 </body>

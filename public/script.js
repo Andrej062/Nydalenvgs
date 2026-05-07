@@ -2,7 +2,8 @@ const userForm = document.getElementById("userForm");
 const usersTable = document.getElementById("usersTable");
 const roleFilter = document.getElementById("roleFilter");
 
-const fullNameInput = document.getElementById("fullName");
+const firstNameInput = document.getElementById("firstName");
+const lastNameInput = document.getElementById("lastName");
 const emailInput = document.getElementById("email");
 const roleInput = document.getElementById("role");
 const classNameInput = document.getElementById("className");
@@ -12,6 +13,36 @@ const cancelEditButton = document.getElementById("cancelEditButton");
 
 let editUserId = null;
 
+// Henter roller fra databasen
+async function loadRoles() {
+  const response = await fetch("/api/roles");
+  const roles = await response.json();
+
+  roleInput.innerHTML = `<option value="">Velg rolle</option>`;
+
+  roles.forEach(role => {
+    const option = document.createElement("option");
+    option.value = role.id;
+    option.textContent = role.role_name;
+    roleInput.appendChild(option);
+  });
+}
+
+// Henter klasser fra databasen
+async function loadClasses() {
+  const response = await fetch("/api/classes");
+  const classes = await response.json();
+
+  classNameInput.innerHTML = `<option value="">Ingen klasse</option>`;
+
+  classes.forEach(schoolClass => {
+    const option = document.createElement("option");
+    option.value = schoolClass.id;
+    option.textContent = schoolClass.class_name;
+    classNameInput.appendChild(option);
+  });
+}
+
 // Henter brukere fra serveren
 async function loadUsers() {
   const response = await fetch("/api/users");
@@ -19,7 +50,6 @@ async function loadUsers() {
 
   const selectedRole = roleFilter.value;
 
-  // Filtrerer brukere etter rolle
   if (selectedRole !== "alle") {
     users = users.filter(user => user.role === selectedRole);
   }
@@ -31,13 +61,14 @@ async function loadUsers() {
 
     row.innerHTML = `
       <td>${user.id}</td>
-      <td>${user.full_name}</td>
+      <td>${user.first_name}</td>
+      <td>${user.last_name}</td>
       <td>${user.email}</td>
       <td>${user.role}</td>
       <td>${user.class_name || ""}</td>
       <td>
-        <button onclick="startEditUser(${user.id}, '${user.full_name}', '${user.email}', '${user.role}', '${user.class_name || ""}')">Endre</button>
-        <button onclick="deleteUser(${user.id})">Slett</button>
+        <button class="edit-btn" onclick="startEditUser(${user.id}, '${user.first_name}', '${user.last_name}', '${user.email}', ${user.role_id}, ${user.class_id || "null"})">Endre</button>
+        <button class="delete-btn" onclick="deleteUser(${user.id})">Slett</button>
       </td>
     `;
 
@@ -45,7 +76,6 @@ async function loadUsers() {
   });
 }
 
-// Når man endrer filteret, lastes tabellen på nytt
 roleFilter.addEventListener("change", loadUsers);
 
 // Legger til ny bruker eller lagrer endringer
@@ -53,13 +83,13 @@ userForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const userData = {
-    full_name: fullNameInput.value,
+    first_name: firstNameInput.value,
+    last_name: lastNameInput.value,
     email: emailInput.value,
-    role: roleInput.value,
-    class_name: classNameInput.value
+    role_id: Number(roleInput.value),
+    class_id: classNameInput.value ? Number(classNameInput.value) : null
   };
 
-  // Hvis editUserId har verdi, oppdaterer vi en eksisterende bruker
   if (editUserId) {
     await fetch(`/api/users/${editUserId}`, {
       method: "PUT",
@@ -73,7 +103,6 @@ userForm.addEventListener("submit", async (event) => {
     submitButton.textContent = "Legg til";
     cancelEditButton.style.display = "none";
   } else {
-    // Hvis editUserId er null, legger vi til ny bruker
     await fetch("/api/users", {
       method: "POST",
       headers: {
@@ -87,17 +116,23 @@ userForm.addEventListener("submit", async (event) => {
   loadUsers();
 });
 
-// Starter redigering av en bruker
-function startEditUser(id, fullName, email, role, className) {
+// Starter redigering
+function startEditUser(id, firstName, lastName, email, roleId, classId) {
   editUserId = id;
 
-  fullNameInput.value = fullName;
+  firstNameInput.value = firstName;
+  lastNameInput.value = lastName;
   emailInput.value = email;
-  roleInput.value = role;
-  classNameInput.value = className;
+  roleInput.value = roleId;
+  classNameInput.value = classId || "";
 
   submitButton.textContent = "Lagre endringer";
   cancelEditButton.style.display = "inline-block";
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 }
 
 // Avbryter redigering
@@ -119,5 +154,11 @@ async function deleteUser(id) {
   loadUsers();
 }
 
-// Laster brukere når siden åpnes
-loadUsers();
+// Starter applikasjonen
+async function startApp() {
+  await loadRoles();
+  await loadClasses();
+  await loadUsers();
+}
+
+startApp();
