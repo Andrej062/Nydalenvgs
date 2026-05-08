@@ -5,6 +5,7 @@ const roleFilter = document.getElementById("roleFilter");
 const firstNameInput = document.getElementById("firstName");
 const lastNameInput = document.getElementById("lastName");
 const emailInput = document.getElementById("email");
+const phoneInput = document.getElementById("phone");
 const roleInput = document.getElementById("role");
 const classNameInput = document.getElementById("className");
 
@@ -46,8 +47,9 @@ loginForm.addEventListener("submit", async (event) => {
   loginSection.style.display = "none";
   appSection.style.display = "block";
 
-  await startApp();
-});
+  localStorage.setItem("userRole", result.user.role);
+
+  await startApp();});
 
 let editUserId = null;
 
@@ -83,7 +85,10 @@ async function loadClasses() {
 
 // Henter brukere fra serveren
 async function loadUsers() {
-  const response = await fetch("/api/users");
+  const loggedInRole = localStorage.getItem("userRole");
+  const canEdit = loggedInRole === "admin";
+
+  const response = await fetch(`/api/users?role=${loggedInRole}`);
   let users = await response.json();
 
   const selectedRole = roleFilter.value;
@@ -101,12 +106,15 @@ async function loadUsers() {
       <td>${user.id}</td>
       <td>${user.first_name}</td>
       <td>${user.last_name}</td>
-      <td>${user.email}</td>
+      <td>${user.email || ""}</td>
+      <td>${user.phone || ""}</td>
       <td>${user.role}</td>
       <td>${user.class_name || ""}</td>
       <td>
-        <button class="edit-btn" onclick="startEditUser(${user.id}, '${user.first_name}', '${user.last_name}', '${user.email}', ${user.role_id}, ${user.class_id || "null"})">Endre</button>
-        <button class="delete-btn" onclick="deleteUser(${user.id})">Slett</button>
+        ${canEdit ? `
+          <button class="edit-btn" onclick="startEditUser(${user.id}, '${user.first_name}', '${user.last_name}', '${user.email || ""}', '${user.phone || ""}', ${user.role_id || "null"}, ${user.class_id || "null"})">Endre</button>          
+          <button class="delete-btn" onclick="deleteUser(${user.id})">Slett</button>
+        ` : "Ingen tilgang"}
       </td>
     `;
 
@@ -124,6 +132,7 @@ userForm.addEventListener("submit", async (event) => {
     first_name: firstNameInput.value,
     last_name: lastNameInput.value,
     email: emailInput.value,
+    phone: phoneInput.value,
     role_id: Number(roleInput.value),
     class_id: classNameInput.value ? Number(classNameInput.value) : null
   };
@@ -155,12 +164,13 @@ userForm.addEventListener("submit", async (event) => {
 });
 
 // Starter redigering
-function startEditUser(id, firstName, lastName, email, roleId, classId) {
+function startEditUser(id, firstName, lastName, email, phone, roleId, classId) {
   editUserId = id;
 
   firstNameInput.value = firstName;
   lastNameInput.value = lastName;
   emailInput.value = email;
+  phoneInput.value = phone;
   roleInput.value = roleId;
   classNameInput.value = classId || "";
 
@@ -199,4 +209,4 @@ async function startApp() {
   await loadUsers();
 }
 
-startApp();
+// startApp();

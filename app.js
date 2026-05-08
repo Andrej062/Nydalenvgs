@@ -59,17 +59,39 @@ app.post("/api/login", (req, res) => {
 
 // Henter alle brukere med rolle og klasse
 app.get("/api/users", (req, res) => {
-  const users = db.prepare(`
-    SELECT 
+  const role = req.query.role;
+
+  let selectFields = `
+    users.id,
+    users.first_name,
+    users.last_name,
+    users.email,
+    users.phone,
+    users.address,
+    users.computer_id,
+    users.computer_model,
+    users.role_id,
+    users.class_id,
+    roles.role_name AS role,
+    classes.class_name AS class_name,
+    users.created_at
+  `;
+
+  if (role === "IT-medarbeider") {
+    selectFields = `
       users.id,
       users.first_name,
       users.last_name,
-      users.email,
-      users.role_id,
-      users.class_id,
+      users.computer_id,
+      users.computer_model,
       roles.role_name AS role,
-      classes.class_name AS class_name,
-      users.created_at
+      classes.class_name AS class_name
+    `;
+  }
+
+  const users = db.prepare(`
+    SELECT 
+      ${selectFields}
     FROM users
     LEFT JOIN roles ON users.role_id = roles.id
     LEFT JOIN classes ON users.class_id = classes.id
@@ -78,7 +100,6 @@ app.get("/api/users", (req, res) => {
 
   res.json(users);
 });
-
 // Henter alle roller
 app.get("/api/roles", (req, res) => {
   const roles = db.prepare("SELECT * FROM roles ORDER BY id").all();
@@ -93,17 +114,18 @@ app.get("/api/classes", (req, res) => {
 
 // Legger til ny bruker
 app.post("/api/users", (req, res) => {
-  const { first_name, last_name, email, role_id, class_id } = req.body;
+  const { first_name, last_name, email, phone, role_id, class_id } = req.body;
 
   const insert = db.prepare(`
-    INSERT INTO users (first_name, last_name, email, role_id, class_id)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO users (first_name, last_name, email, phone, role_id, class_id)
+    VALUES (?, ?, ?, ?, ?, ?)
   `);
 
   const result = insert.run(
     first_name,
     last_name,
     email,
+    phone || "",
     role_id,
     class_id || null
   );
@@ -117,11 +139,11 @@ app.post("/api/users", (req, res) => {
 // Endrer en bruker
 app.put("/api/users/:id", (req, res) => {
   const { id } = req.params;
-  const { first_name, last_name, email, role_id, class_id } = req.body;
+  const { first_name, last_name, email, phone, role_id, class_id } = req.body;
 
   const update = db.prepare(`
     UPDATE users
-    SET first_name = ?, last_name = ?, email = ?, role_id = ?, class_id = ?
+    SET first_name = ?, last_name = ?, email = ?, phone = ?, role_id = ?, class_id = ?
     WHERE id = ?
   `);
 
@@ -129,6 +151,7 @@ app.put("/api/users/:id", (req, res) => {
     first_name,
     last_name,
     email,
+    phone || "",
     role_id,
     class_id || null,
     id
