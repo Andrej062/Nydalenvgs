@@ -7,6 +7,7 @@ const lastNameInput = document.getElementById("lastName");
 const emailInput = document.getElementById("email");
 const phoneInput = document.getElementById("phone");
 const roleInput = document.getElementById("role");
+const addressInput = document.getElementById("address");
 const classNameInput = document.getElementById("className");
 
 const submitButton = document.getElementById("submitButton");
@@ -84,6 +85,7 @@ async function loadClasses() {
 }
 
 // Henter brukere fra serveren
+// Henter brukere fra serveren
 async function loadUsers() {
   const loggedInRole = localStorage.getItem("userRole");
   const canEdit = loggedInRole === "admin";
@@ -108,11 +110,12 @@ async function loadUsers() {
       <td>${user.last_name}</td>
       <td>${user.email || ""}</td>
       <td>${user.phone || ""}</td>
+      <td>${user.address || ""}</td>
       <td>${user.role}</td>
       <td>${user.class_name || ""}</td>
       <td>
         ${canEdit ? `
-          <button class="edit-btn" onclick="startEditUser(${user.id}, '${user.first_name}', '${user.last_name}', '${user.email || ""}', '${user.phone || ""}', ${user.role_id || "null"}, ${user.class_id || "null"})">Endre</button>          
+          <button class="edit-btn" onclick="startEditUser(${user.id}, '${user.first_name}', '${user.last_name}', '${user.email || ""}', '${user.phone || ""}', '${user.address || ""}', ${user.role_id || "null"}, ${user.class_id || "null"})">Endre</button>
           <button class="delete-btn" onclick="deleteUser(${user.id})">Slett</button>
         ` : "Ingen tilgang"}
       </td>
@@ -128,14 +131,15 @@ roleFilter.addEventListener("change", loadUsers);
 userForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  const userData = {
-    first_name: firstNameInput.value,
-    last_name: lastNameInput.value,
-    email: emailInput.value,
-    phone: phoneInput.value,
-    role_id: Number(roleInput.value),
-    class_id: classNameInput.value ? Number(classNameInput.value) : null
-  };
+const userData = {
+  first_name: firstNameInput.value,
+  last_name: lastNameInput.value,
+  email: emailInput.value,
+  phone: phoneInput.value,
+  address: addressInput.value,
+  role_id: Number(roleInput.value),
+  class_id: classNameInput.value ? Number(classNameInput.value) : null
+};
 
   if (editUserId) {
     await fetch(`/api/users/${editUserId}`, {
@@ -164,13 +168,14 @@ userForm.addEventListener("submit", async (event) => {
 });
 
 // Starter redigering
-function startEditUser(id, firstName, lastName, email, phone, roleId, classId) {
+function startEditUser(id, firstName, lastName, email, phone, address, roleId, classId) {
   editUserId = id;
 
   firstNameInput.value = firstName;
   lastNameInput.value = lastName;
   emailInput.value = email;
   phoneInput.value = phone;
+  addressInput.value = address;
   roleInput.value = roleId;
   classNameInput.value = classId || "";
 

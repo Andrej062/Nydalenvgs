@@ -114,11 +114,11 @@ app.get("/api/classes", (req, res) => {
 
 // Legger til ny bruker
 app.post("/api/users", (req, res) => {
-  const { first_name, last_name, email, phone, role_id, class_id } = req.body;
+  const { first_name, last_name, email, phone, address, role_id, class_id } = req.body;
 
   const insert = db.prepare(`
-    INSERT INTO users (first_name, last_name, email, phone, role_id, class_id)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO users (first_name, last_name, email, phone, address, role_id, class_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
 
   const result = insert.run(
@@ -126,6 +126,7 @@ app.post("/api/users", (req, res) => {
     last_name,
     email,
     phone || "",
+    address || "",
     role_id,
     class_id || null
   );
@@ -139,11 +140,11 @@ app.post("/api/users", (req, res) => {
 // Endrer en bruker
 app.put("/api/users/:id", (req, res) => {
   const { id } = req.params;
-  const { first_name, last_name, email, phone, role_id, class_id } = req.body;
+  const { first_name, last_name, email, phone, address, role_id, class_id } = req.body;
 
   const update = db.prepare(`
     UPDATE users
-    SET first_name = ?, last_name = ?, email = ?, phone = ?, role_id = ?, class_id = ?
+    SET first_name = ?, last_name = ?, email = ?, phone = ?, address = ?, role_id = ?, class_id = ?
     WHERE id = ?
   `);
 
@@ -152,6 +153,7 @@ app.put("/api/users/:id", (req, res) => {
     last_name,
     email,
     phone || "",
+    address || "",
     role_id,
     class_id || null,
     id
