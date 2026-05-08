@@ -9,6 +9,54 @@ app.use(express.static("public"));
 
 const db = new Database("nydalenvgs.db");
 
+// Enkel innlogging til brukersystemet
+app.post("/api/login", (req, res) => {
+  const { email, password } = req.body;
+
+  const user = db.prepare(`
+    SELECT 
+      users.id,
+      users.first_name,
+      users.last_name,
+      users.email,
+      users.password,
+      users.access_to_brukersystem,
+      roles.role_name AS role
+    FROM users
+    LEFT JOIN roles ON users.role_id = roles.id
+    WHERE users.email = ?
+  `).get(email);
+
+  if (!user) {
+    return res.status(401).json({
+      message: "Feil e-post eller passord"
+    });
+  }
+
+  if (user.password !== password) {
+    return res.status(401).json({
+      message: "Feil e-post eller passord"
+    });
+  }
+
+  if (user.access_to_brukersystem !== 1) {
+    return res.status(403).json({
+      message: "Du har ikke tilgang til brukersystemet"
+    });
+  }
+
+  res.json({
+    message: "Innlogging vellykket",
+    user: {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      role: user.role
+    }
+  });
+});
+
 // Henter alle brukere med rolle og klasse
 app.get("/api/users", (req, res) => {
   const users = db.prepare(`

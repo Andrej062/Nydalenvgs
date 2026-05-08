@@ -11,6 +11,44 @@ const classNameInput = document.getElementById("className");
 const submitButton = document.getElementById("submitButton");
 const cancelEditButton = document.getElementById("cancelEditButton");
 
+const loginSection = document.getElementById("loginSection");
+const appSection = document.getElementById("appSection");
+const loginForm = document.getElementById("loginForm");
+const loginEmailInput = document.getElementById("loginEmail");
+const loginPasswordInput = document.getElementById("loginPassword");
+const loginMessage = document.getElementById("loginMessage");
+
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const loginData = {
+    email: loginEmailInput.value,
+    password: loginPasswordInput.value
+  };
+
+  const response = await fetch("/api/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(loginData)
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    loginMessage.textContent = result.message;
+    loginMessage.style.color = "red";
+    return;
+  }
+
+  loginMessage.textContent = "";
+  loginSection.style.display = "none";
+  appSection.style.display = "block";
+
+  await startApp();
+});
+
 let editUserId = null;
 
 // Henter roller fra databasen

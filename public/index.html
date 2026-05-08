@@ -7,6 +7,22 @@
 </head>
 <body>
   <main class="container">
+
+  <section id="loginSection" class="card login-card">
+    <h1>Nydalen VGS Brukersystem</h1>
+    <p>Logg inn for å få tilgang til brukersystemet.</p>
+
+    <form id="loginForm" class="login-form">
+      <input type="email" id="loginEmail" placeholder="E-post" required>
+      <input type="password" id="loginPassword" placeholder="Passord" required>
+      <button type="submit">Logg inn</button>
+    </form>
+
+    <p id="loginMessage" class="login-message"></p>
+  </section>
+
+<div id="appSection" style="display: none;">
+
     <header class="top">
       <div>
         <h1>Nydalen VGS Brukersystem</h1>
@@ -70,6 +86,7 @@
         <tbody id="usersTable"></tbody>
       </table>
     </section>
+    </div>
   </main>
 
   <script src="script.js"></script>
